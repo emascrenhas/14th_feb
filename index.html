@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Our Love Story - Finale</title>
 
   <style>
@@ -19,14 +19,18 @@
       background: #050505;
       overflow: hidden;
       color: white;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      inset: 0;
     }
 
-    /* ---------------- ROTATE SUGGESTION OVERLAY ---------------- */
+    /* ---------------- ROTATE SUGGESTION OVERLAY (NON-BLOCKING) ---------------- */
     #rotateOverlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.88);
-      display: flex;
+      display: none;
       flex-direction: column;
       justify-content: center;
       align-items: center;
@@ -55,6 +59,18 @@
       animation: rotateWiggle 1.6s infinite ease-in-out;
     }
 
+    #continueAnyway {
+      margin-top: 18px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: none;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
     @keyframes rotateWiggle {
       0% { transform: rotate(0deg) scale(1); }
       40% { transform: rotate(-12deg) scale(1.05); }
@@ -75,13 +91,15 @@
       justify-content: center;
       align-items: center;
       background: linear-gradient(to bottom, #0b1022, #02030a);
+      overflow: hidden;
     }
 
     canvas {
-      background: transparent;
-      image-rendering: pixelated;
+      display: block;
       width: 100vw;
       height: 100vh;
+      image-rendering: pixelated;
+      background: transparent;
     }
 
     /* ---------------- TOUCH CONTROLS ---------------- */
@@ -138,7 +156,6 @@
     }
 
     #heartCounter {
-      pointer-events: none;
       padding: 10px 14px;
       border-radius: 14px;
       background: rgba(0,0,0,0.35);
@@ -175,7 +192,7 @@
       transform: translateX(-50%);
       max-width: min(92vw, 700px);
       width: fit-content;
-      padding: 18px 18px;
+      padding: 18px;
       border-radius: 18px;
       background: rgba(0,0,0,0.72);
       border: 1px solid rgba(255,255,255,0.16);
@@ -500,7 +517,6 @@
       line-height: 1.6;
     }
 
-    /* Confetti hearts */
     .floatingHeart {
       position: absolute;
       font-size: 1.8rem;
@@ -510,14 +526,8 @@
     }
 
     @keyframes floatUp {
-      from {
-        transform: translateY(40px) scale(1);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(-120vh) scale(1.4);
-        opacity: 0;
-      }
+      from { transform: translateY(40px) scale(1); opacity: 1; }
+      to { transform: translateY(-120vh) scale(1.4); opacity: 0; }
     }
 
   </style>
@@ -528,8 +538,8 @@
   <div id="rotateOverlay">
     <div class="rotateIcon">📱↩️</div>
     <h1>Rotate Your Phone</h1>
-    <p>This experience is designed for <b>landscape mode</b> for the best gameplay + Netflix finale vibes.</p>
-    <p style="margin-top:10px; opacity:0.65;">(It will still load, but landscape is recommended.)</p>
+    <p>This is best experienced in <b>landscape mode</b> (game + Netflix finale).</p>
+    <button id="continueAnyway">Continue Anyway</button>
   </div>
 
   <!-- GAME -->
@@ -570,10 +580,7 @@
       <div class="netflixSub">Season 1 Finale</div>
     </div>
 
-    <div style="font-size:1.15rem; opacity:0.9; margin-bottom: 8px;">
-      Episodes
-    </div>
-
+    <div style="font-size:1.15rem; opacity:0.9; margin-bottom: 8px;">Episodes</div>
     <div class="episodeRow" id="episodeRow"></div>
 
     <div class="netflixButtons">
@@ -617,10 +624,7 @@
   <!-- FINAL QUESTION -->
   <div id="finalQuestion">
     <h1>Will You Be My Valentine? 💘</h1>
-    <p>
-      Not just for today.<br>
-      But for every season, every episode, every moment.
-    </p>
+    <p>Not just for today.<br>But for every season, every episode, every moment.</p>
 
     <div class="yesBtns">
       <button class="nfBtn primaryBtn" id="yesBtn1">YES 💖</button>
@@ -634,31 +638,34 @@
     <p>
       Congratulations, legend.<br><br>
       This is officially the cutest Valentine project ever made.
-      I hope this makes her smile the way she makes your world brighter.
     </p>
   </div>
 
 <script>
 /* ============================================================
-   BASIC SETUP
+   CANVAS FIX (TRUE MOBILE FRAME FIT)
 ============================================================ */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth * devicePixelRatio;
-  canvas.height = window.innerHeight * devicePixelRatio;
-  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 /* ============================================================
-   ROTATE OVERLAY (SUGGESTION ONLY)
+   ROTATE OVERLAY (SUGGESTION ONLY, NOT BLOCKING LOAD)
 ============================================================ */
 const rotateOverlay = document.getElementById("rotateOverlay");
+const continueAnyway = document.getElementById("continueAnyway");
+
+let overlayDismissed = false;
 
 function updateRotateOverlay() {
+  if (overlayDismissed) return;
+
   if (window.innerHeight > window.innerWidth) {
     rotateOverlay.style.display = "flex";
   } else {
@@ -666,12 +673,16 @@ function updateRotateOverlay() {
   }
 }
 window.addEventListener("resize", updateRotateOverlay);
+
+continueAnyway.addEventListener("click", () => {
+  overlayDismissed = true;
+  rotateOverlay.style.display = "none";
+});
+
 updateRotateOverlay();
 
 /* ============================================================
    AUDIO SYSTEM
-   (Background music is generated as simple oscillator tone.
-   You can replace it later with your own audio file.)
 ============================================================ */
 let audioContext;
 let bgOscillator;
@@ -704,19 +715,10 @@ function playSound(type) {
   const g = audioContext.createGain();
   g.connect(audioContext.destination);
 
-  if (type === "jump") {
-    osc.frequency.value = 380;
-    g.gain.value = 0.08;
-  } else if (type === "heart") {
-    osc.frequency.value = 620;
-    g.gain.value = 0.08;
-  } else if (type === "unlock") {
-    osc.frequency.value = 220;
-    g.gain.value = 0.09;
-  } else if (type === "door") {
-    osc.frequency.value = 150;
-    g.gain.value = 0.10;
-  }
+  if (type === "jump") { osc.frequency.value = 380; g.gain.value = 0.08; }
+  if (type === "heart") { osc.frequency.value = 620; g.gain.value = 0.08; }
+  if (type === "unlock") { osc.frequency.value = 220; g.gain.value = 0.09; }
+  if (type === "door") { osc.frequency.value = 150; g.gain.value = 0.10; }
 
   osc.connect(g);
   osc.start();
@@ -728,14 +730,11 @@ function playSound(type) {
 muteBtn.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   muteBtn.innerText = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-
-  if (gainNode) {
-    gainNode.gain.value = soundEnabled ? 0.06 : 0.0;
-  }
+  if (gainNode) gainNode.gain.value = soundEnabled ? 0.06 : 0.0;
 });
 
 /* ============================================================
-   INPUT SYSTEM (KEYBOARD + TOUCH)
+   INPUT SYSTEM
 ============================================================ */
 let keys = { left: false, right: false, jump: false };
 
@@ -764,7 +763,7 @@ function bindTouch(btn, action) {
     keys[action] = false;
   }, { passive: false });
 
-  btn.addEventListener("mousedown", (e) => {
+  btn.addEventListener("mousedown", () => {
     initAudio();
     keys[action] = true;
   });
@@ -783,14 +782,9 @@ bindTouch(document.getElementById("btnRight"), "right");
 bindTouch(document.getElementById("btnJump"), "jump");
 
 /* ============================================================
-   GAME WORLD SETUP
+   GAME WORLD
 ============================================================ */
-const world = {
-  width: 5200,
-  height: 1000,
-  gravity: 0.65
-};
-
+const world = { width: 5200, gravity: 0.65 };
 const groundY = 720;
 
 const player = {
@@ -802,21 +796,17 @@ const player = {
   vy: 0,
   speed: 4.2,
   jumpPower: 13.5,
-  onGround: false,
-  facing: 1
+  onGround: false
 };
 
 const platforms = [
-  { x: 0, y: groundY, w: world.width, h: 300 },
-
+  { x: 0, y: groundY, w: world.width, h: 400 },
   { x: 500, y: groundY - 110, w: 180, h: 20 },
   { x: 860, y: groundY - 180, w: 220, h: 20 },
   { x: 1300, y: groundY - 140, w: 200, h: 20 },
-
   { x: 1850, y: groundY - 200, w: 240, h: 20 },
   { x: 2300, y: groundY - 130, w: 200, h: 20 },
   { x: 2700, y: groundY - 180, w: 220, h: 20 },
-
   { x: 3300, y: groundY - 160, w: 240, h: 20 },
   { x: 3800, y: groundY - 220, w: 220, h: 20 },
   { x: 4300, y: groundY - 140, w: 260, h: 20 }
@@ -868,25 +858,16 @@ function spawnHearts() {
 }
 spawnHearts();
 
-/* Door */
-const door = {
-  x: 4950,
-  y: groundY - 110,
-  w: 70,
-  h: 110,
-  unlocked: false
-};
+const door = { x: 4950, y: groundY - 110, w: 70, h: 110, unlocked: false };
 
-/* Camera */
 let cameraX = 0;
 
 /* ============================================================
-   UI ELEMENTS
+   UI POPUP
 ============================================================ */
 const popup = document.getElementById("messagePopup");
 const popupText = document.getElementById("popupText");
 const closeMsg = document.getElementById("closeMsg");
-
 let popupActive = false;
 
 closeMsg.addEventListener("click", () => {
@@ -899,13 +880,6 @@ function showMessage(text) {
   popup.style.display = "block";
   popupActive = true;
 }
-
-function hideMessage() {
-  popup.style.display = "none";
-  popupActive = false;
-}
-
-const heartCountText = document.getElementById("heartCountText");
 
 /* ============================================================
    COLLISION
@@ -924,51 +898,38 @@ function rectsCollide(a, b) {
 ============================================================ */
 let heartsCollected = 0;
 let gameFinished = false;
+const heartCountText = document.getElementById("heartCountText");
 
 function update() {
   if (gameFinished) return;
 
-  // If popup active, freeze movement
   if (popupActive) {
     draw();
     requestAnimationFrame(update);
     return;
   }
 
-  // Movement
   player.vx = 0;
-  if (keys.left) {
-    player.vx = -player.speed;
-    player.facing = -1;
-  }
-  if (keys.right) {
-    player.vx = player.speed;
-    player.facing = 1;
-  }
+  if (keys.left) player.vx = -player.speed;
+  if (keys.right) player.vx = player.speed;
 
-  // Jump
   if (keys.jump && player.onGround) {
     player.vy = -player.jumpPower;
     player.onGround = false;
     playSound("jump");
   }
 
-  // Gravity
   player.vy += world.gravity;
 
-  // Apply velocity
   player.x += player.vx;
   player.y += player.vy;
 
-  // Boundaries
   if (player.x < 0) player.x = 0;
   if (player.x + player.w > world.width) player.x = world.width - player.w;
 
-  // Platform collision
   player.onGround = false;
   for (let p of platforms) {
     if (rectsCollide(player, p)) {
-      // Only handle landing from above
       if (player.vy > 0 && player.y + player.h - player.vy <= p.y) {
         player.y = p.y - player.h;
         player.vy = 0;
@@ -977,7 +938,6 @@ function update() {
     }
   }
 
-  // Collect hearts
   for (let h of hearts) {
     if (!h.collected && rectsCollide(player, h)) {
       h.collected = true;
@@ -993,7 +953,6 @@ function update() {
     }
   }
 
-  // Door collision
   if (rectsCollide(player, door) && door.unlocked) {
     gameFinished = true;
     playSound("door");
@@ -1001,7 +960,6 @@ function update() {
     return;
   }
 
-  // Camera follow
   cameraX = player.x - window.innerWidth / 2 + player.w / 2;
   cameraX = Math.max(0, Math.min(cameraX, world.width - window.innerWidth));
 
@@ -1010,75 +968,42 @@ function update() {
 }
 
 /* ============================================================
-   DRAW FUNCTIONS (PIXEL STYLE)
+   DRAW
 ============================================================ */
 function drawBackground() {
-  // Sky gradient
-  const g = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
+  const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
   g.addColorStop(0, "#101a3a");
   g.addColorStop(1, "#02030a");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-  // Stars
-  ctx.fillStyle = "rgba(255,255,255,0.6)";
-  for (let i = 0; i < 50; i++) {
-    const sx = (i * 220 + (cameraX * 0.3)) % window.innerWidth;
-    const sy = (i * 70) % 300;
-    ctx.fillRect(sx, sy, 2, 2);
-  }
-
-  // Parallax clouds
-  ctx.fillStyle = "rgba(255,255,255,0.07)";
-  for (let i = 0; i < 12; i++) {
-    const cx = ((i * 420) - (cameraX * 0.2)) % (world.width);
-    const cy = 90 + (i * 20) % 140;
-    ctx.beginPath();
-    ctx.arc(cx - cameraX, cy, 40, 0, Math.PI * 2);
-    ctx.arc(cx - cameraX + 40, cy + 10, 35, 0, Math.PI * 2);
-    ctx.arc(cx - cameraX - 40, cy + 10, 35, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawPlatforms() {
   for (let p of platforms) {
     ctx.fillStyle = "#0f1b12";
     ctx.fillRect(p.x - cameraX, p.y, p.w, p.h);
-
     ctx.fillStyle = "#1d2f22";
     ctx.fillRect(p.x - cameraX, p.y, p.w, 18);
-
-    // Decorative pixels
-    ctx.fillStyle = "rgba(255,255,255,0.06)";
-    for (let i = 0; i < p.w; i += 90) {
-      ctx.fillRect(p.x - cameraX + i + 20, p.y + 25, 6, 6);
-    }
   }
 }
 
 function drawPlayer() {
-  // Blob character
   const px = player.x - cameraX;
   const py = player.y;
 
-  // Body
   ctx.fillStyle = "#ff8fb1";
   ctx.beginPath();
   ctx.roundRect(px, py, player.w, player.h, 14);
   ctx.fill();
 
-  // Eyes
   ctx.fillStyle = "#0b0b0b";
   ctx.fillRect(px + 16, py + 18, 6, 10);
   ctx.fillRect(px + 30, py + 18, 6, 10);
 
-  // Cute blush
   ctx.fillStyle = "rgba(255,0,70,0.25)";
   ctx.fillRect(px + 10, py + 32, 8, 5);
   ctx.fillRect(px + 34, py + 32, 8, 5);
 
-  // Tiny smile
   ctx.strokeStyle = "#0b0b0b";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1089,10 +1014,8 @@ function drawPlayer() {
 function drawHearts() {
   for (let h of hearts) {
     if (h.collected) continue;
-
     const hx = h.x - cameraX;
     const floatY = Math.sin(Date.now() / 250 + h.floatOffset) * 6;
-
     ctx.font = "28px Arial";
     ctx.fillText("❤️", hx, h.y + floatY);
   }
@@ -1102,26 +1025,18 @@ function drawDoor() {
   const dx = door.x - cameraX;
   const dy = door.y;
 
-  // Door frame
   ctx.fillStyle = door.unlocked ? "rgba(255,0,80,0.35)" : "rgba(255,255,255,0.08)";
   ctx.fillRect(dx - 6, dy - 6, door.w + 12, door.h + 12);
 
-  // Door body
   ctx.fillStyle = door.unlocked ? "#e50914" : "#333";
   ctx.fillRect(dx, dy, door.w, door.h);
 
-  // Knob
   ctx.fillStyle = "#ffd1dc";
   ctx.fillRect(dx + 50, dy + 55, 8, 8);
 
-  // Lock text
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "14px Arial";
-  if (!door.unlocked) {
-    ctx.fillText("LOCKED", dx - 4, dy - 12);
-  } else {
-    ctx.fillText("FINAL", dx + 14, dy - 12);
-  }
+  ctx.fillText(door.unlocked ? "FINAL" : "LOCKED", dx + 10, dy - 12);
 }
 
 function draw() {
@@ -1130,27 +1045,6 @@ function draw() {
   drawHearts();
   drawDoor();
   drawPlayer();
-
-  // Instructions near start
-  if (player.x < 400) {
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.font = "18px Arial";
-    ctx.fillText("Collect 12 hearts 💖", 40, 120);
-    ctx.fillText("Then unlock the final door 🚪", 40, 145);
-  }
-
-  // Hint near door
-  if (player.x > 4400 && !door.unlocked) {
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.font = "18px Arial";
-    ctx.fillText("The door needs all hearts...", window.innerWidth - 320, 130);
-  }
-
-  if (player.x > 4500 && door.unlocked) {
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.font = "20px Arial";
-    ctx.fillText("Enter the door for the finale ✨", window.innerWidth - 360, 130);
-  }
 }
 
 /* ============================================================
@@ -1163,19 +1057,17 @@ function triggerFinale() {
   document.getElementById("touchControls").style.display = "none";
   popup.style.display = "none";
 
-  fadeScreen.style.pointerEvents = "auto";
   fadeScreen.style.opacity = "1";
 
   setTimeout(() => {
     document.getElementById("gameContainer").style.display = "none";
     fadeScreen.style.opacity = "0";
-
     netflixScreen.style.display = "flex";
-  }, 2200);
+  }, 2000);
 }
 
 /* ============================================================
-   NETFLIX EPISODES (8)
+   NETFLIX EPISODES
 ============================================================ */
 const episodeRow = document.getElementById("episodeRow");
 
@@ -1195,17 +1087,13 @@ function renderEpisodes() {
   episodes.forEach((ep, index) => {
     const card = document.createElement("div");
     card.className = "episodeCard";
-    card.innerHTML = `
-      <h3>${ep.title}</h3>
-      <span>${ep.subtitle}</span>
-    `;
+    card.innerHTML = `<h3>${ep.title}</h3><span>${ep.subtitle}</span>`;
     card.addEventListener("click", () => openEpisode(index));
     episodeRow.appendChild(card);
   });
 }
 renderEpisodes();
 
-/* Episode Modal */
 const episodeModal = document.getElementById("episodeModal");
 const modalTitle = document.getElementById("modalTitle");
 const modalText = document.getElementById("modalText");
@@ -1242,13 +1130,8 @@ continueBtn.addEventListener("click", () => {
 endingBtn.addEventListener("click", () => {
   netflixScreen.style.display = "none";
   endingScene.style.display = "flex";
-
-  // IMPORTANT:
-  // Here you will later add your uploaded music autoplay.
-  // For now we keep the simple oscillator running.
 });
 
-/* Ending Scene Buttons */
 document.getElementById("backToNetflixBtn").addEventListener("click", () => {
   endingScene.style.display = "none";
   netflixScreen.style.display = "flex";
@@ -1260,13 +1143,12 @@ document.getElementById("toFinalQuestionBtn").addEventListener("click", () => {
 });
 
 /* ============================================================
-   FINAL QUESTION YES BUTTONS
+   FINAL QUESTION YES
 ============================================================ */
 function startCelebration() {
   finalQuestion.style.display = "none";
   celebration.style.display = "flex";
 
-  // Heart confetti
   for (let i = 0; i < 55; i++) {
     setTimeout(() => {
       const heart = document.createElement("div");
@@ -1276,7 +1158,6 @@ function startCelebration() {
       heart.style.top = (80 + Math.random() * 20) + "vh";
       heart.style.fontSize = (18 + Math.random() * 22) + "px";
       document.body.appendChild(heart);
-
       setTimeout(() => heart.remove(), 4000);
     }, i * 60);
   }
