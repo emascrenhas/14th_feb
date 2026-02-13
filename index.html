@@ -25,10 +25,6 @@
       inset: 0;
     }
 
-    /* ---------------- ROTATE SUGGESTION OVERLAY (NON-BLOCKING) ---------------- */
-    
-  
-
     /* ---------------- GAME SCREEN ---------------- */
     #gameContainer {
       position: fixed;
@@ -244,8 +240,8 @@
     }
 
     .episodeCard {
-      min-width: 200px;
-      height: 120px;
+      min-width: 220px;
+      height: 130px;
       border-radius: 18px;
       background: linear-gradient(135deg, rgba(255,0,70,0.25), rgba(255,255,255,0.06));
       border: 1px solid rgba(255,255,255,0.15);
@@ -256,6 +252,7 @@
       cursor: pointer;
       transition: 0.25s ease;
       flex-shrink: 0;
+      position: relative;
     }
 
     .episodeCard:active {
@@ -265,6 +262,7 @@
     .episodeCard h3 {
       font-size: 1.05rem;
       font-weight: 700;
+      line-height: 1.2;
     }
 
     .episodeCard span {
@@ -272,11 +270,29 @@
       opacity: 0.75;
     }
 
+    .episodeCard.watched {
+      opacity: 0.78;
+      border: 2px solid rgba(255,255,255,0.28);
+    }
+
+    .episodeCard.watched::after {
+      content: "✓ Watched";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.65);
+      color: white;
+    }
+
     .netflixButtons {
       margin-top: 20px;
       display: flex;
       gap: 14px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .nfBtn {
@@ -298,9 +314,21 @@
       color: white;
     }
 
-    .secondaryBtn {
-      background: rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.92);
+    .primaryBtn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Continue button glow when unlocked */
+    .primaryBtn.unlocked {
+      box-shadow: 0 0 20px rgba(255,0,80,0.65);
+      transform: scale(1.03);
+    }
+
+    .continueText {
+      margin-top: 10px;
+      opacity: 0.7;
+      font-size: 0.95rem;
     }
 
     /* ---------------- EPISODE MODAL ---------------- */
@@ -332,13 +360,22 @@
       margin-bottom: 10px;
     }
 
+    .episode-image {
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin: 12px 0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
     .modalBox p {
       font-size: 1.05rem;
       opacity: 0.9;
       line-height: 1.5;
       overflow-wrap: anywhere;
       word-break: break-word;
-      max-height: 55vh;
+      max-height: 40vh;
       overflow-y: auto;
       padding-right: 6px;
     }
@@ -357,46 +394,6 @@
       color: rgba(255,255,255,0.9);
       cursor: pointer;
       font-size: 1rem;
-    }
-
-    /* ---------------- ENDING SCENE ---------------- */
-    #endingScene {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(255,0,80,0.25), #050505 60%);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 24px;
-      z-index: 30000;
-    }
-
-    #endingScene h1 {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
-      font-weight: 900;
-    }
-
-    #endingScene p {
-      max-width: 850px;
-      font-size: 1.15rem;
-      line-height: 1.6;
-      opacity: 0.92;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      max-height: 55vh;
-      overflow-y: auto;
-      padding-right: 6px;
-    }
-
-    #endingScene .finalBtns {
-      margin-top: 18px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
     }
 
     /* ---------------- FINAL QUESTION ---------------- */
@@ -480,7 +477,6 @@
 </head>
 <body>
 
-
   <!-- GAME -->
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
@@ -523,8 +519,11 @@
     <div class="episodeRow" id="episodeRow"></div>
 
     <div class="netflixButtons">
-      <button class="nfBtn primaryBtn" id="continueBtn">Continue Watching</button>
-      <button class="nfBtn secondaryBtn" id="endingBtn">Play Ending Scene 🎵</button>
+      <button class="nfBtn primaryBtn" id="continueBtn" disabled>Continue Watching</button>
+    </div>
+
+    <div class="continueText" id="continueText">
+      Watch all episodes to unlock Continue Watching ❤️
     </div>
 
     <div style="margin-top:18px; opacity:0.55; font-size:0.95rem;">
@@ -536,27 +535,11 @@
   <div id="episodeModal">
     <div class="modalBox">
       <h2 id="modalTitle"></h2>
+      <img id="episodeImage" src="" alt="Episode Image" class="episode-image" />
       <p id="modalText"></p>
       <div class="modalActions">
         <button class="closeModalBtn" id="closeEpisodeModal">Close</button>
       </div>
-    </div>
-  </div>
-
-  <!-- ENDING SCENE -->
-  <div id="endingScene">
-    <h1>Ending Scene 💖</h1>
-    <p id="endingLetter">
-      You are my favorite chapter.<br><br>
-      Every day with you feels like a memory I want to replay forever.
-      You are not just my Valentine… you are my peace, my chaos, my happiness,
-      my best decision, and my favorite person.<br><br>
-      And if this is our Season 1 Finale… I can’t wait for the rest of the seasons with you.
-    </p>
-
-    <div class="finalBtns">
-      <button class="nfBtn primaryBtn" id="toFinalQuestionBtn">Continue</button>
-      <button class="nfBtn secondaryBtn" id="backToNetflixBtn">Back</button>
     </div>
   </div>
 
@@ -567,7 +550,7 @@
 
     <div class="yesBtns">
       <button class="nfBtn primaryBtn" id="yesBtn1">YES 💖</button>
-      <button class="nfBtn secondaryBtn" id="yesBtn2">OF COURSE YES 😭</button>
+      <button class="nfBtn" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.92);" id="yesBtn2">OF COURSE YES 😭</button>
     </div>
   </div>
 
@@ -593,10 +576,6 @@ function resizeCanvas() {
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
-
-/* ============================================================
-   ROTATE OVERLAY (SUGGESTION ONLY, NOT BLOCKING LOAD)
-============================================================ */
 
 /* ============================================================
    AUDIO SYSTEM
@@ -701,42 +680,32 @@ bindTouch(document.getElementById("btnJump"), "jump");
 /* ============================================================
    GAME WORLD
 ============================================================ */
-/* ============================================================
-   RESPONSIVE GAME WORLD (FIXED FOR MOBILE)
-============================================================ */
 const world = { width: 5200, gravity: 0.65 };
-
-// Ground always stays near bottom of screen
 let groundY = Math.floor(window.innerHeight * 0.82);
 
-// Resize recalculates ground + repositions player/platforms/hearts
 function recalcWorldLayout() {
   groundY = Math.floor(window.innerHeight * 0.82);
 
-  // Reposition player safely on ground
   player.y = groundY - player.h;
 
-  // Update platforms Y positions dynamically
   platforms.length = 0;
 
   platforms.push(
     { x: 0, y: groundY, w: world.width, h: 400 },
-    { x: 500, y: groundY - 110, w: 180, h: 20 },
-    { x: 860, y: groundY - 180, w: 220, h: 20 },
-    { x: 1300, y: groundY - 140, w: 200, h: 20 },
-    { x: 1850, y: groundY - 200, w: 240, h: 20 },
-    { x: 2300, y: groundY - 130, w: 200, h: 20 },
-    { x: 2700, y: groundY - 180, w: 220, h: 20 },
-    { x: 3300, y: groundY - 160, w: 240, h: 20 },
-    { x: 3800, y: groundY - 220, w: 220, h: 20 },
-    { x: 4300, y: groundY - 140, w: 260, h: 20 }
+    { x: 500, y: groundY - 90, w: 200, h: 20 },
+    { x: 900, y: groundY - 110, w: 220, h: 20 },
+    { x: 1300, y: groundY - 95, w: 240, h: 20 },
+    { x: 1800, y: groundY - 120, w: 260, h: 20 },
+    { x: 2300, y: groundY - 100, w: 240, h: 20 },
+    { x: 2800, y: groundY - 110, w: 260, h: 20 },
+    { x: 3350, y: groundY - 100, w: 260, h: 20 },
+    { x: 3900, y: groundY - 120, w: 260, h: 20 },
+    { x: 4400, y: groundY - 100, w: 260, h: 20 }
   );
 
-  // Update hearts Y positions dynamically
   hearts.length = 0;
   spawnHearts();
 
-  // Door always aligns with ground
   door.y = groundY - door.h;
 }
 
@@ -753,8 +722,8 @@ const player = {
 };
 
 const platforms = [];
-
 const hearts = [];
+
 const heartMessages = [
   "Your smile is literally my favorite place to live.",
   "If love was a game, you’d be my final reward every time.",
@@ -772,18 +741,18 @@ const heartMessages = [
 
 function spawnHearts() {
   const positions = [
-    { x: 520, yOffset: 160 },
-    { x: 900, yOffset: 240 },
-    { x: 1120, yOffset: 90 },
-    { x: 1380, yOffset: 200 },
-    { x: 1880, yOffset: 200 },
-    { x: 2120, yOffset: 90 },
-    { x: 2440, yOffset: 190 },
-    { x: 2780, yOffset: 240 },
-    { x: 3320, yOffset: 210 },
-    { x: 3900, yOffset: 200 },
-    { x: 4180, yOffset: 90 },
-    { x: 4580, yOffset: 200 }
+    { x: 520, yOffset: 120 },
+    { x: 900, yOffset: 130 },
+    { x: 1120, yOffset: 110 },
+    { x: 1380, yOffset: 135 },
+    { x: 1880, yOffset: 150 },
+    { x: 2120, yOffset: 115 },
+    { x: 2440, yOffset: 135 },
+    { x: 2780, yOffset: 145 },
+    { x: 3320, yOffset: 135 },
+    { x: 3900, yOffset: 160 },
+    { x: 4180, yOffset: 115 },
+    { x: 4580, yOffset: 140 }
   ];
 
   for (let i = 0; i < 12; i++) {
@@ -801,7 +770,6 @@ function spawnHearts() {
 
 const door = { x: 4950, y: groundY - 110, w: 70, h: 110, unlocked: false };
 
-// Recalculate layout at start + whenever resized
 recalcWorldLayout();
 window.addEventListener("resize", recalcWorldLayout);
 
@@ -842,6 +810,7 @@ function rectsCollide(a, b) {
 let heartsCollected = 0;
 let gameFinished = false;
 const heartCountText = document.getElementById("heartCountText");
+let cameraX = 0;
 
 function update() {
   if (gameFinished) return;
@@ -1010,41 +979,122 @@ function triggerFinale() {
 }
 
 /* ============================================================
-   NETFLIX EPISODES
+   NETFLIX EPISODES (FIXED + WATCHED SYSTEM + IMAGES)
 ============================================================ */
 const episodeRow = document.getElementById("episodeRow");
 
 const episodes = [
-  { title: "Episode 1", subtitle: "How It Started", text: "The moment we began… and I didn’t even realize it was the start of something unforgettable." },
-  { title: "Episode 2", subtitle: "The First Laugh", text: "That laugh. That smile. That exact moment where I thought: wow… I want more of this forever." },
-  { title: "Episode 3", subtitle: "My Favorite Person", text: "Some people feel temporary. But you… you feel like the kind of person life was saving for me." },
-  { title: "Episode 4", subtitle: "The Comfort Trap", text: "You became my comfort, my peace, my safe place… without even trying." },
-  { title: "Episode 5", subtitle: "The Chaos + The Calm", text: "You’re the cutest chaos, and the calmest home. Somehow both. Somehow perfect." },
-  { title: "Episode 6", subtitle: "The Day I Knew", text: "There was a moment where everything just clicked… and I knew I didn’t want anyone else." },
-  { title: "Episode 7", subtitle: "My Forever Choice", text: "Not a choice I made once… but a choice I’d make every single day. Again. Again. Again." },
-  { title: "Episode 8", subtitle: "Season Finale", text: "The finale isn’t the ending… it’s the beginning of what comes next." }
+  {
+    title: "Episode 1: How It Started",
+    desc: "The moment we began… and I didn’t even realize it was the start of something unforgettable.",
+    img: "assets/ep1.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 2: The First Laugh",
+    desc: "That laugh. That smile. That exact moment where I thought: wow… I want more of this forever.",
+    img: "assets/ep2.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 3: My Favorite Habit",
+    desc: "Some people feel temporary. But you… you feel like the kind of person life was saving for me.",
+    img: "assets/ep3.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 4: The Comfort You Gave Me",
+    desc: "You became my comfort, my peace, my safe place… without even trying.",
+    img: "assets/ep4.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 5: The Day I Realized",
+    desc: "You’re the cutest chaos, and the calmest home. Somehow both. Somehow perfect.",
+    img: "assets/ep5.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 6: My Safe Place",
+    desc: "There was a moment where everything just clicked… and I knew I didn’t want anyone else.",
+    img: "assets/ep6.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 7: The Best Part of My Days",
+    desc: "Not a choice I made once… but a choice I’d make every single day. Again. Again. Again.",
+    img: "assets/ep7.jpg",
+    watched: false
+  },
+  {
+    title: "Episode 8: Season Finale",
+    desc: "The finale isn’t the ending… it’s the beginning of what comes next.",
+    img: "assets/ep8.jpg",
+    watched: false
+  }
 ];
 
 function renderEpisodes() {
   episodeRow.innerHTML = "";
+
   episodes.forEach((ep, index) => {
     const card = document.createElement("div");
     card.className = "episodeCard";
-    card.innerHTML = `<h3>${ep.title}</h3><span>${ep.subtitle}</span>`;
+    card.dataset.index = index;
+
+    card.innerHTML = `
+      <h3>${ep.title}</h3>
+      <span>Tap to watch</span>
+    `;
+
+    if (ep.watched) card.classList.add("watched");
+
     card.addEventListener("click", () => openEpisode(index));
     episodeRow.appendChild(card);
   });
 }
+
 renderEpisodes();
 
 const episodeModal = document.getElementById("episodeModal");
 const modalTitle = document.getElementById("modalTitle");
 const modalText = document.getElementById("modalText");
+const episodeImage = document.getElementById("episodeImage");
+
+const continueBtn = document.getElementById("continueBtn");
+const continueText = document.getElementById("continueText");
+
+function updateContinueButton() {
+  const watchedCount = episodes.filter(e => e.watched).length;
+
+  if (watchedCount === episodes.length) {
+    continueBtn.disabled = false;
+    continueBtn.classList.add("unlocked");
+    continueText.innerText = "Finale unlocked ❤️ Tap Continue Watching";
+  } else {
+    continueBtn.disabled = true;
+    continueBtn.classList.remove("unlocked");
+    continueText.innerText = `Episodes watched: ${watchedCount}/${episodes.length} — watch all to unlock ❤️`;
+  }
+}
+
+updateContinueButton();
 
 function openEpisode(i) {
-  modalTitle.innerText = `${episodes[i].title} - ${episodes[i].subtitle}`;
-  modalText.innerText = episodes[i].text;
+  const ep = episodes[i];
+
+  modalTitle.innerText = ep.title;
+  modalText.innerText = ep.desc;
+  episodeImage.src = ep.img;
+
   episodeModal.style.display = "flex";
+
+  ep.watched = true;
+
+  const card = document.querySelector(`.episodeCard[data-index="${i}"]`);
+  if (card) card.classList.add("watched");
+
+  updateContinueButton();
 }
 
 document.getElementById("closeEpisodeModal").addEventListener("click", () => {
@@ -1056,32 +1106,14 @@ episodeModal.addEventListener("click", (e) => {
 });
 
 /* ============================================================
-   NETFLIX BUTTONS
+   CONTINUE WATCHING (UNLOCKED ONLY AFTER WATCHING ALL)
 ============================================================ */
-const continueBtn = document.getElementById("continueBtn");
-const endingBtn = document.getElementById("endingBtn");
-
-const endingScene = document.getElementById("endingScene");
 const finalQuestion = document.getElementById("finalQuestion");
 const celebration = document.getElementById("celebration");
 
 continueBtn.addEventListener("click", () => {
+  if (continueBtn.disabled) return;
   netflixScreen.style.display = "none";
-  finalQuestion.style.display = "flex";
-});
-
-endingBtn.addEventListener("click", () => {
-  netflixScreen.style.display = "none";
-  endingScene.style.display = "flex";
-});
-
-document.getElementById("backToNetflixBtn").addEventListener("click", () => {
-  endingScene.style.display = "none";
-  netflixScreen.style.display = "flex";
-});
-
-document.getElementById("toFinalQuestionBtn").addEventListener("click", () => {
-  endingScene.style.display = "none";
   finalQuestion.style.display = "flex";
 });
 
@@ -1113,7 +1145,6 @@ document.getElementById("yesBtn2").addEventListener("click", startCelebration);
    START GAME
 ============================================================ */
 requestAnimationFrame(update);
-
 </script>
 
 </body>
