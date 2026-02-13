@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no" />
+  <title>Our Love Story - Finale</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background: #050505;
+      overflow: hidden;
+      color: white;
+    }
+
+    /* ---------------- ROTATE SUGGESTION OVERLAY ---------------- */
+    #rotateOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      padding: 20px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    #rotateOverlay h1 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    #rotateOverlay p {
+      font-size: 1rem;
+      opacity: 0.85;
+      max-width: 500px;
+      line-height: 1.4;
+    }
+
+    .rotateIcon {
+      font-size: 4rem;
+      margin-bottom: 18px;
+      animation: rotateWiggle 1.6s infinite ease-in-out;
+    }
+
+    @keyframes rotateWiggle {
+      0% { transform: rotate(0deg) scale(1); }
+      40% { transform: rotate(-12deg) scale(1.05); }
+      80% { transform: rotate(12deg) scale(1.05); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* ---------------- GAME SCREEN ---------------- */
+    #gameContainer {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to bottom, #0b1022, #02030a);
+    }
+
+    canvas {
+      background: transparent;
+      image-rendering: pixelated;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ---------------- TOUCH CONTROLS ---------------- */
+    #touchControls {
+      position: fixed;
+      bottom: 16px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 18px;
+      z-index: 5000;
+      pointer-events: none;
+    }
+
+    .controlGroup {
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    .btnControl {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(6px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.8rem;
+      color: rgba(255,255,255,0.85);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+      transition: transform 0.08s ease;
+    }
+
+    .btnControl:active {
+      transform: scale(0.92);
+    }
+
+    /* ---------------- TOP HUD ---------------- */
+    #hud {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 6000;
+      pointer-events: none;
+    }
+
+    #heartCounter {
+      pointer-events: none;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #muteBtn {
+      pointer-events: auto;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    #muteBtn:active {
+      transform: scale(0.95);
+    }
+
+    /* ---------------- MESSAGE POPUP ---------------- */
+    #messagePopup {
+      position: fixed;
+      left: 50%;
+      top: 18%;
+      transform: translateX(-50%);
+      max-width: min(92vw, 700px);
+      width: fit-content;
+      padding: 18px 18px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.72);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+      z-index: 7000;
+      display: none;
+      animation: popupIn 0.22s ease;
+    }
+
+    #messagePopup p {
+      font-size: 1.05rem;
+      line-height: 1.45;
+      opacity: 0.92;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    #closeMsg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: none;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.92);
+      font-size: 0.95rem;
+      cursor: pointer;
+      width: fit-content;
+    }
+
+    @keyframes popupIn {
+      from { transform: translateX(-50%) translateY(-10px); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0px); opacity: 1; }
+    }
+
+    /* ---------------- FADE SCREEN ---------------- */
+    #fadeScreen {
+      position: fixed;
+      inset: 0;
+      background: black;
+      z-index: 9000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* ---------------- NETFLIX SCREEN ---------------- */
+    #netflixScreen {
+      position: fixed;
+      inset: 0;
+      background: #050505;
+      display: none;
+      flex-direction: column;
+      padding: 26px;
+      z-index: 10000;
+      overflow: hidden;
+    }
+
+    .netflixHeader {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .netflixTitle {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .netflixSub {
+      font-size: 1.1rem;
+      opacity: 0.75;
+    }
+
+    .episodeRow {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 14px 0;
+      scroll-behavior: smooth;
+    }
+
+    .episodeRow::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .episodeRow::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+    }
+
+    .episodeCard {
+      min-width: 200px;
+      height: 120px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,0,70,0.25), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .episodeCard:active {
+      transform: scale(0.97);
+    }
+
+    .episodeCard h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .episodeCard span {
+      font-size: 0.9rem;
+      opacity: 0.75;
+    }
+
+    .netflixButtons {
+      margin-top: 20px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .nfBtn {
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .nfBtn:active {
+      transform: scale(0.96);
+    }
+
+    .primaryBtn {
+      background: #e50914;
+      color: white;
+    }
+
+    .secondaryBtn {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.92);
+    }
+
+    /* ---------------- EPISODE MODAL ---------------- */
+    #episodeModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 20000;
+    }
+
+    .modalBox {
+      max-width: min(92vw, 800px);
+      width: fit-content;
+      background: rgba(10,10,10,0.95);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.75);
+      animation: popupIn 0.2s ease;
+    }
+
+    .modalBox h2 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .modalBox p {
+      font-size: 1.05rem;
+      opacity: 0.9;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .modalActions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .closeModalBtn {
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: none;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    /* ---------------- ENDING SCENE ---------------- */
+    #endingScene {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255,0,80,0.25), #050505 60%);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+      z-index: 30000;
+    }
+
+    #endingScene h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      font-weight: 900;
+    }
+
+    #endingScene p {
+      max-width: 850px;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      opacity: 0.92;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    #endingScene .finalBtns {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ---------------- FINAL QUESTION ---------------- */
+    #finalQuestion {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,0,80,0.25), #050505 70%);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+      z-index: 40000;
+    }
+
+    #finalQuestion h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    #finalQuestion p {
+      font-size: 1.15rem;
+      opacity: 0.9;
+      max-width: 800px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .yesBtns {
+      margin-top: 18px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ---------------- CELEBRATION ---------------- */
+    #celebration {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,0,100,0.25), #050505 70%);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 20px;
+      z-index: 50000;
+    }
+
+    #celebration h1 {
+      font-size: 2.6rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    #celebration p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 850px;
+      line-height: 1.6;
+    }
+
+    /* Confetti hearts */
+    .floatingHeart {
+      position: absolute;
+      font-size: 1.8rem;
+      animation: floatUp 4s linear forwards;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      from {
+        transform: translateY(40px) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-120vh) scale(1.4);
+        opacity: 0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ROTATE SUGGESTION -->
+  <div id="rotateOverlay">
+    <div class="rotateIcon">📱↩️</div>
+    <h1>Rotate Your Phone</h1>
+    <p>This experience is designed for <b>landscape mode</b> for the best gameplay + Netflix finale vibes.</p>
+    <p style="margin-top:10px; opacity:0.65;">(It will still load, but landscape is recommended.)</p>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="heartCounter">❤️ <span id="heartCountText">0 / 12</span></div>
+    <div id="muteBtn">🔊 Sound: ON</div>
+  </div>
+
+  <!-- TOUCH CONTROLS -->
+  <div id="touchControls">
+    <div class="controlGroup">
+      <div class="btnControl" id="btnLeft">⬅️</div>
+      <div class="btnControl" id="btnRight">➡️</div>
+    </div>
+    <div class="controlGroup">
+      <div class="btnControl" id="btnJump">⤴️</div>
+    </div>
+  </div>
+
+  <!-- MESSAGE POPUP -->
+  <div id="messagePopup">
+    <p id="popupText"></p>
+    <button id="closeMsg">Close</button>
+  </div>
+
+  <!-- FADE SCREEN -->
+  <div id="fadeScreen">Loading Finale...</div>
+
+  <!-- NETFLIX SCREEN -->
+  <div id="netflixScreen">
+    <div class="netflixHeader">
+      <div class="netflixTitle">Our Love Story</div>
+      <div class="netflixSub">Season 1 Finale</div>
+    </div>
+
+    <div style="font-size:1.15rem; opacity:0.9; margin-bottom: 8px;">
+      Episodes
+    </div>
+
+    <div class="episodeRow" id="episodeRow"></div>
+
+    <div class="netflixButtons">
+      <button class="nfBtn primaryBtn" id="continueBtn">Continue Watching</button>
+      <button class="nfBtn secondaryBtn" id="endingBtn">Play Ending Scene 🎵</button>
+    </div>
+
+    <div style="margin-top:18px; opacity:0.55; font-size:0.95rem;">
+      Tap an episode to relive the memories.
+    </div>
+  </div>
+
+  <!-- EPISODE MODAL -->
+  <div id="episodeModal">
+    <div class="modalBox">
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div class="modalActions">
+        <button class="closeModalBtn" id="closeEpisodeModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENDING SCENE -->
+  <div id="endingScene">
+    <h1>Ending Scene 💖</h1>
+    <p id="endingLetter">
+      You are my favorite chapter.<br><br>
+      Every day with you feels like a memory I want to replay forever.
+      You are not just my Valentine… you are my peace, my chaos, my happiness,
+      my best decision, and my favorite person.<br><br>
+      And if this is our Season 1 Finale… I can’t wait for the rest of the seasons with you.
+    </p>
+
+    <div class="finalBtns">
+      <button class="nfBtn primaryBtn" id="toFinalQuestionBtn">Continue</button>
+      <button class="nfBtn secondaryBtn" id="backToNetflixBtn">Back</button>
+    </div>
+  </div>
+
+  <!-- FINAL QUESTION -->
+  <div id="finalQuestion">
+    <h1>Will You Be My Valentine? 💘</h1>
+    <p>
+      Not just for today.<br>
+      But for every season, every episode, every moment.
+    </p>
+
+    <div class="yesBtns">
+      <button class="nfBtn primaryBtn" id="yesBtn1">YES 💖</button>
+      <button class="nfBtn secondaryBtn" id="yesBtn2">OF COURSE YES 😭</button>
+    </div>
+  </div>
+
+  <!-- CELEBRATION -->
+  <div id="celebration">
+    <h1>She Said YES! 💞</h1>
+    <p>
+      Congratulations, legend.<br><br>
+      This is officially the cutest Valentine project ever made.
+      I hope this makes her smile the way she makes your world brighter.
+    </p>
+  </div>
+
+<script>
+/* ============================================================
+   BASIC SETUP
+============================================================ */
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+/* ============================================================
+   ROTATE OVERLAY (SUGGESTION ONLY)
+============================================================ */
+const rotateOverlay = document.getElementById("rotateOverlay");
+
+function updateRotateOverlay() {
+  if (window.innerHeight > window.innerWidth) {
+    rotateOverlay.style.display = "flex";
+  } else {
+    rotateOverlay.style.display = "none";
+  }
+}
+window.addEventListener("resize", updateRotateOverlay);
+updateRotateOverlay();
+
+/* ============================================================
+   AUDIO SYSTEM
+   (Background music is generated as simple oscillator tone.
+   You can replace it later with your own audio file.)
+============================================================ */
+let audioContext;
+let bgOscillator;
+let gainNode;
+let soundEnabled = true;
+let audioStarted = false;
+
+const muteBtn = document.getElementById("muteBtn");
+
+function initAudio() {
+  if (audioStarted) return;
+  audioStarted = true;
+
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioContext.createGain();
+  gainNode.gain.value = 0.06;
+  gainNode.connect(audioContext.destination);
+
+  bgOscillator = audioContext.createOscillator();
+  bgOscillator.type = "sine";
+  bgOscillator.frequency.value = 110;
+  bgOscillator.connect(gainNode);
+  bgOscillator.start();
+}
+
+function playSound(type) {
+  if (!soundEnabled || !audioStarted) return;
+
+  const osc = audioContext.createOscillator();
+  const g = audioContext.createGain();
+  g.connect(audioContext.destination);
+
+  if (type === "jump") {
+    osc.frequency.value = 380;
+    g.gain.value = 0.08;
+  } else if (type === "heart") {
+    osc.frequency.value = 620;
+    g.gain.value = 0.08;
+  } else if (type === "unlock") {
+    osc.frequency.value = 220;
+    g.gain.value = 0.09;
+  } else if (type === "door") {
+    osc.frequency.value = 150;
+    g.gain.value = 0.10;
+  }
+
+  osc.connect(g);
+  osc.start();
+
+  g.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.18);
+  osc.stop(audioContext.currentTime + 0.2);
+}
+
+muteBtn.addEventListener("click", () => {
+  soundEnabled = !soundEnabled;
+  muteBtn.innerText = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+
+  if (gainNode) {
+    gainNode.gain.value = soundEnabled ? 0.06 : 0.0;
+  }
+});
+
+/* ============================================================
+   INPUT SYSTEM (KEYBOARD + TOUCH)
+============================================================ */
+let keys = { left: false, right: false, jump: false };
+
+window.addEventListener("keydown", (e) => {
+  initAudio();
+  if (e.key === "ArrowLeft") keys.left = true;
+  if (e.key === "ArrowRight") keys.right = true;
+  if (e.key === " " || e.key === "ArrowUp") keys.jump = true;
+});
+
+window.addEventListener("keyup", (e) => {
+  if (e.key === "ArrowLeft") keys.left = false;
+  if (e.key === "ArrowRight") keys.right = false;
+  if (e.key === " " || e.key === "ArrowUp") keys.jump = false;
+});
+
+function bindTouch(btn, action) {
+  btn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    initAudio();
+    keys[action] = true;
+  }, { passive: false });
+
+  btn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    keys[action] = false;
+  }, { passive: false });
+
+  btn.addEventListener("mousedown", (e) => {
+    initAudio();
+    keys[action] = true;
+  });
+
+  btn.addEventListener("mouseup", () => {
+    keys[action] = false;
+  });
+
+  btn.addEventListener("mouseleave", () => {
+    keys[action] = false;
+  });
+}
+
+bindTouch(document.getElementById("btnLeft"), "left");
+bindTouch(document.getElementById("btnRight"), "right");
+bindTouch(document.getElementById("btnJump"), "jump");
+
+/* ============================================================
+   GAME WORLD SETUP
+============================================================ */
+const world = {
+  width: 5200,
+  height: 1000,
+  gravity: 0.65
+};
+
+const groundY = 720;
+
+const player = {
+  x: 120,
+  y: groundY - 70,
+  w: 52,
+  h: 52,
+  vx: 0,
+  vy: 0,
+  speed: 4.2,
+  jumpPower: 13.5,
+  onGround: false,
+  facing: 1
+};
+
+const platforms = [
+  { x: 0, y: groundY, w: world.width, h: 300 },
+
+  { x: 500, y: groundY - 110, w: 180, h: 20 },
+  { x: 860, y: groundY - 180, w: 220, h: 20 },
+  { x: 1300, y: groundY - 140, w: 200, h: 20 },
+
+  { x: 1850, y: groundY - 200, w: 240, h: 20 },
+  { x: 2300, y: groundY - 130, w: 200, h: 20 },
+  { x: 2700, y: groundY - 180, w: 220, h: 20 },
+
+  { x: 3300, y: groundY - 160, w: 240, h: 20 },
+  { x: 3800, y: groundY - 220, w: 220, h: 20 },
+  { x: 4300, y: groundY - 140, w: 260, h: 20 }
+];
+
+const hearts = [];
+const heartMessages = [
+  "Your smile is literally my favorite place to live.",
+  "If love was a game, you’d be my final reward every time.",
+  "You make my world softer, brighter, and better.",
+  "I don’t need perfect days. I just need you in them.",
+  "You are my peace, my chaos, my happiness — all in one.",
+  "Every little moment with you feels like magic.",
+  "Even in a crowd, you’re the only one I notice.",
+  "I love you in ways words can’t fully explain.",
+  "You feel like home… but also like adventure.",
+  "You’re the best part of my everyday life.",
+  "I’d choose you again and again, in every universe.",
+  "This isn’t just Valentine’s… this is us. Forever."
+];
+
+function spawnHearts() {
+  const positions = [
+    { x: 520, y: groundY - 160 },
+    { x: 900, y: groundY - 240 },
+    { x: 1120, y: groundY - 90 },
+    { x: 1380, y: groundY - 200 },
+    { x: 1880, y: groundY - 260 },
+    { x: 2120, y: groundY - 90 },
+    { x: 2440, y: groundY - 190 },
+    { x: 2780, y: groundY - 240 },
+    { x: 3320, y: groundY - 210 },
+    { x: 3900, y: groundY - 280 },
+    { x: 4180, y: groundY - 90 },
+    { x: 4580, y: groundY - 200 }
+  ];
+
+  for (let i = 0; i < 12; i++) {
+    hearts.push({
+      x: positions[i].x,
+      y: positions[i].y,
+      w: 32,
+      h: 32,
+      collected: false,
+      msg: heartMessages[i],
+      floatOffset: Math.random() * 20
+    });
+  }
+}
+spawnHearts();
+
+/* Door */
+const door = {
+  x: 4950,
+  y: groundY - 110,
+  w: 70,
+  h: 110,
+  unlocked: false
+};
+
+/* Camera */
+let cameraX = 0;
+
+/* ============================================================
+   UI ELEMENTS
+============================================================ */
+const popup = document.getElementById("messagePopup");
+const popupText = document.getElementById("popupText");
+const closeMsg = document.getElementById("closeMsg");
+
+let popupActive = false;
+
+closeMsg.addEventListener("click", () => {
+  popup.style.display = "none";
+  popupActive = false;
+});
+
+function showMessage(text) {
+  popupText.innerText = text;
+  popup.style.display = "block";
+  popupActive = true;
+}
+
+function hideMessage() {
+  popup.style.display = "none";
+  popupActive = false;
+}
+
+const heartCountText = document.getElementById("heartCountText");
+
+/* ============================================================
+   COLLISION
+============================================================ */
+function rectsCollide(a, b) {
+  return (
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y
+  );
+}
+
+/* ============================================================
+   GAME LOOP
+============================================================ */
+let heartsCollected = 0;
+let gameFinished = false;
+
+function update() {
+  if (gameFinished) return;
+
+  // If popup active, freeze movement
+  if (popupActive) {
+    draw();
+    requestAnimationFrame(update);
+    return;
+  }
+
+  // Movement
+  player.vx = 0;
+  if (keys.left) {
+    player.vx = -player.speed;
+    player.facing = -1;
+  }
+  if (keys.right) {
+    player.vx = player.speed;
+    player.facing = 1;
+  }
+
+  // Jump
+  if (keys.jump && player.onGround) {
+    player.vy = -player.jumpPower;
+    player.onGround = false;
+    playSound("jump");
+  }
+
+  // Gravity
+  player.vy += world.gravity;
+
+  // Apply velocity
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Boundaries
+  if (player.x < 0) player.x = 0;
+  if (player.x + player.w > world.width) player.x = world.width - player.w;
+
+  // Platform collision
+  player.onGround = false;
+  for (let p of platforms) {
+    if (rectsCollide(player, p)) {
+      // Only handle landing from above
+      if (player.vy > 0 && player.y + player.h - player.vy <= p.y) {
+        player.y = p.y - player.h;
+        player.vy = 0;
+        player.onGround = true;
+      }
+    }
+  }
+
+  // Collect hearts
+  for (let h of hearts) {
+    if (!h.collected && rectsCollide(player, h)) {
+      h.collected = true;
+      heartsCollected++;
+      playSound("heart");
+      heartCountText.innerText = `${heartsCollected} / 12`;
+      showMessage(h.msg);
+
+      if (heartsCollected >= 12) {
+        door.unlocked = true;
+        playSound("unlock");
+      }
+    }
+  }
+
+  // Door collision
+  if (rectsCollide(player, door) && door.unlocked) {
+    gameFinished = true;
+    playSound("door");
+    triggerFinale();
+    return;
+  }
+
+  // Camera follow
+  cameraX = player.x - window.innerWidth / 2 + player.w / 2;
+  cameraX = Math.max(0, Math.min(cameraX, world.width - window.innerWidth));
+
+  draw();
+  requestAnimationFrame(update);
+}
+
+/* ============================================================
+   DRAW FUNCTIONS (PIXEL STYLE)
+============================================================ */
+function drawBackground() {
+  // Sky gradient
+  const g = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
+  g.addColorStop(0, "#101a3a");
+  g.addColorStop(1, "#02030a");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+  // Stars
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  for (let i = 0; i < 50; i++) {
+    const sx = (i * 220 + (cameraX * 0.3)) % window.innerWidth;
+    const sy = (i * 70) % 300;
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+
+  // Parallax clouds
+  ctx.fillStyle = "rgba(255,255,255,0.07)";
+  for (let i = 0; i < 12; i++) {
+    const cx = ((i * 420) - (cameraX * 0.2)) % (world.width);
+    const cy = 90 + (i * 20) % 140;
+    ctx.beginPath();
+    ctx.arc(cx - cameraX, cy, 40, 0, Math.PI * 2);
+    ctx.arc(cx - cameraX + 40, cy + 10, 35, 0, Math.PI * 2);
+    ctx.arc(cx - cameraX - 40, cy + 10, 35, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawPlatforms() {
+  for (let p of platforms) {
+    ctx.fillStyle = "#0f1b12";
+    ctx.fillRect(p.x - cameraX, p.y, p.w, p.h);
+
+    ctx.fillStyle = "#1d2f22";
+    ctx.fillRect(p.x - cameraX, p.y, p.w, 18);
+
+    // Decorative pixels
+    ctx.fillStyle = "rgba(255,255,255,0.06)";
+    for (let i = 0; i < p.w; i += 90) {
+      ctx.fillRect(p.x - cameraX + i + 20, p.y + 25, 6, 6);
+    }
+  }
+}
+
+function drawPlayer() {
+  // Blob character
+  const px = player.x - cameraX;
+  const py = player.y;
+
+  // Body
+  ctx.fillStyle = "#ff8fb1";
+  ctx.beginPath();
+  ctx.roundRect(px, py, player.w, player.h, 14);
+  ctx.fill();
+
+  // Eyes
+  ctx.fillStyle = "#0b0b0b";
+  ctx.fillRect(px + 16, py + 18, 6, 10);
+  ctx.fillRect(px + 30, py + 18, 6, 10);
+
+  // Cute blush
+  ctx.fillStyle = "rgba(255,0,70,0.25)";
+  ctx.fillRect(px + 10, py + 32, 8, 5);
+  ctx.fillRect(px + 34, py + 32, 8, 5);
+
+  // Tiny smile
+  ctx.strokeStyle = "#0b0b0b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(px + 26, py + 32, 7, 0, Math.PI);
+  ctx.stroke();
+}
+
+function drawHearts() {
+  for (let h of hearts) {
+    if (h.collected) continue;
+
+    const hx = h.x - cameraX;
+    const floatY = Math.sin(Date.now() / 250 + h.floatOffset) * 6;
+
+    ctx.font = "28px Arial";
+    ctx.fillText("❤️", hx, h.y + floatY);
+  }
+}
+
+function drawDoor() {
+  const dx = door.x - cameraX;
+  const dy = door.y;
+
+  // Door frame
+  ctx.fillStyle = door.unlocked ? "rgba(255,0,80,0.35)" : "rgba(255,255,255,0.08)";
+  ctx.fillRect(dx - 6, dy - 6, door.w + 12, door.h + 12);
+
+  // Door body
+  ctx.fillStyle = door.unlocked ? "#e50914" : "#333";
+  ctx.fillRect(dx, dy, door.w, door.h);
+
+  // Knob
+  ctx.fillStyle = "#ffd1dc";
+  ctx.fillRect(dx + 50, dy + 55, 8, 8);
+
+  // Lock text
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "14px Arial";
+  if (!door.unlocked) {
+    ctx.fillText("LOCKED", dx - 4, dy - 12);
+  } else {
+    ctx.fillText("FINAL", dx + 14, dy - 12);
+  }
+}
+
+function draw() {
+  drawBackground();
+  drawPlatforms();
+  drawHearts();
+  drawDoor();
+  drawPlayer();
+
+  // Instructions near start
+  if (player.x < 400) {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.font = "18px Arial";
+    ctx.fillText("Collect 12 hearts 💖", 40, 120);
+    ctx.fillText("Then unlock the final door 🚪", 40, 145);
+  }
+
+  // Hint near door
+  if (player.x > 4400 && !door.unlocked) {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.font = "18px Arial";
+    ctx.fillText("The door needs all hearts...", window.innerWidth - 320, 130);
+  }
+
+  if (player.x > 4500 && door.unlocked) {
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.font = "20px Arial";
+    ctx.fillText("Enter the door for the finale ✨", window.innerWidth - 360, 130);
+  }
+}
+
+/* ============================================================
+   FINAL TRANSITION TO NETFLIX
+============================================================ */
+const fadeScreen = document.getElementById("fadeScreen");
+const netflixScreen = document.getElementById("netflixScreen");
+
+function triggerFinale() {
+  document.getElementById("touchControls").style.display = "none";
+  popup.style.display = "none";
+
+  fadeScreen.style.pointerEvents = "auto";
+  fadeScreen.style.opacity = "1";
+
+  setTimeout(() => {
+    document.getElementById("gameContainer").style.display = "none";
+    fadeScreen.style.opacity = "0";
+
+    netflixScreen.style.display = "flex";
+  }, 2200);
+}
+
+/* ============================================================
+   NETFLIX EPISODES (8)
+============================================================ */
+const episodeRow = document.getElementById("episodeRow");
+
+const episodes = [
+  { title: "Episode 1", subtitle: "How It Started", text: "The moment we began… and I didn’t even realize it was the start of something unforgettable." },
+  { title: "Episode 2", subtitle: "The First Laugh", text: "That laugh. That smile. That exact moment where I thought: wow… I want more of this forever." },
+  { title: "Episode 3", subtitle: "My Favorite Person", text: "Some people feel temporary. But you… you feel like the kind of person life was saving for me." },
+  { title: "Episode 4", subtitle: "The Comfort Trap", text: "You became my comfort, my peace, my safe place… without even trying." },
+  { title: "Episode 5", subtitle: "The Chaos + The Calm", text: "You’re the cutest chaos, and the calmest home. Somehow both. Somehow perfect." },
+  { title: "Episode 6", subtitle: "The Day I Knew", text: "There was a moment where everything just clicked… and I knew I didn’t want anyone else." },
+  { title: "Episode 7", subtitle: "My Forever Choice", text: "Not a choice I made once… but a choice I’d make every single day. Again. Again. Again." },
+  { title: "Episode 8", subtitle: "Season Finale", text: "The finale isn’t the ending… it’s the beginning of what comes next." }
+];
+
+function renderEpisodes() {
+  episodeRow.innerHTML = "";
+  episodes.forEach((ep, index) => {
+    const card = document.createElement("div");
+    card.className = "episodeCard";
+    card.innerHTML = `
+      <h3>${ep.title}</h3>
+      <span>${ep.subtitle}</span>
+    `;
+    card.addEventListener("click", () => openEpisode(index));
+    episodeRow.appendChild(card);
+  });
+}
+renderEpisodes();
+
+/* Episode Modal */
+const episodeModal = document.getElementById("episodeModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
+
+function openEpisode(i) {
+  modalTitle.innerText = `${episodes[i].title} - ${episodes[i].subtitle}`;
+  modalText.innerText = episodes[i].text;
+  episodeModal.style.display = "flex";
+}
+
+document.getElementById("closeEpisodeModal").addEventListener("click", () => {
+  episodeModal.style.display = "none";
+});
+
+episodeModal.addEventListener("click", (e) => {
+  if (e.target === episodeModal) episodeModal.style.display = "none";
+});
+
+/* ============================================================
+   NETFLIX BUTTONS
+============================================================ */
+const continueBtn = document.getElementById("continueBtn");
+const endingBtn = document.getElementById("endingBtn");
+
+const endingScene = document.getElementById("endingScene");
+const finalQuestion = document.getElementById("finalQuestion");
+const celebration = document.getElementById("celebration");
+
+continueBtn.addEventListener("click", () => {
+  netflixScreen.style.display = "none";
+  finalQuestion.style.display = "flex";
+});
+
+endingBtn.addEventListener("click", () => {
+  netflixScreen.style.display = "none";
+  endingScene.style.display = "flex";
+
+  // IMPORTANT:
+  // Here you will later add your uploaded music autoplay.
+  // For now we keep the simple oscillator running.
+});
+
+/* Ending Scene Buttons */
+document.getElementById("backToNetflixBtn").addEventListener("click", () => {
+  endingScene.style.display = "none";
+  netflixScreen.style.display = "flex";
+});
+
+document.getElementById("toFinalQuestionBtn").addEventListener("click", () => {
+  endingScene.style.display = "none";
+  finalQuestion.style.display = "flex";
+});
+
+/* ============================================================
+   FINAL QUESTION YES BUTTONS
+============================================================ */
+function startCelebration() {
+  finalQuestion.style.display = "none";
+  celebration.style.display = "flex";
+
+  // Heart confetti
+  for (let i = 0; i < 55; i++) {
+    setTimeout(() => {
+      const heart = document.createElement("div");
+      heart.className = "floatingHeart";
+      heart.innerText = "💖";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.top = (80 + Math.random() * 20) + "vh";
+      heart.style.fontSize = (18 + Math.random() * 22) + "px";
+      document.body.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 4000);
+    }, i * 60);
+  }
+}
+
+document.getElementById("yesBtn1").addEventListener("click", startCelebration);
+document.getElementById("yesBtn2").addEventListener("click", startCelebration);
+
+/* ============================================================
+   START GAME
+============================================================ */
+requestAnimationFrame(update);
+
+</script>
+
+</body>
+</html>
