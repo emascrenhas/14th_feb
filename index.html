@@ -597,28 +597,6 @@ resizeCanvas();
 /* ============================================================
    ROTATE OVERLAY (SUGGESTION ONLY, NOT BLOCKING LOAD)
 ============================================================ */
-const rotateOverlay = document.getElementById("rotateOverlay");
-const continueAnyway = document.getElementById("continueAnyway");
-
-let overlayDismissed = false;
-
-function updateRotateOverlay() {
-  if (overlayDismissed) return;
-
-  if (window.innerHeight > window.innerWidth) {
-    rotateOverlay.style.display = "flex";
-  } else {
-    rotateOverlay.style.display = "none";
-  }
-}
-window.addEventListener("resize", updateRotateOverlay);
-
-continueAnyway.addEventListener("click", () => {
-  overlayDismissed = true;
-  rotateOverlay.style.display = "none";
-});
-
-updateRotateOverlay();
 
 /* ============================================================
    AUDIO SYSTEM
