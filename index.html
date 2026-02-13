@@ -784,8 +784,44 @@ bindTouch(document.getElementById("btnJump"), "jump");
 /* ============================================================
    GAME WORLD
 ============================================================ */
+/* ============================================================
+   RESPONSIVE GAME WORLD (FIXED FOR MOBILE)
+============================================================ */
 const world = { width: 5200, gravity: 0.65 };
-const groundY = 720;
+
+// Ground always stays near bottom of screen
+let groundY = Math.floor(window.innerHeight * 0.82);
+
+// Resize recalculates ground + repositions player/platforms/hearts
+function recalcWorldLayout() {
+  groundY = Math.floor(window.innerHeight * 0.82);
+
+  // Reposition player safely on ground
+  player.y = groundY - player.h;
+
+  // Update platforms Y positions dynamically
+  platforms.length = 0;
+
+  platforms.push(
+    { x: 0, y: groundY, w: world.width, h: 400 },
+    { x: 500, y: groundY - 110, w: 180, h: 20 },
+    { x: 860, y: groundY - 180, w: 220, h: 20 },
+    { x: 1300, y: groundY - 140, w: 200, h: 20 },
+    { x: 1850, y: groundY - 200, w: 240, h: 20 },
+    { x: 2300, y: groundY - 130, w: 200, h: 20 },
+    { x: 2700, y: groundY - 180, w: 220, h: 20 },
+    { x: 3300, y: groundY - 160, w: 240, h: 20 },
+    { x: 3800, y: groundY - 220, w: 220, h: 20 },
+    { x: 4300, y: groundY - 140, w: 260, h: 20 }
+  );
+
+  // Update hearts Y positions dynamically
+  hearts.length = 0;
+  spawnHearts();
+
+  // Door always aligns with ground
+  door.y = groundY - door.h;
+}
 
 const player = {
   x: 120,
@@ -799,18 +835,7 @@ const player = {
   onGround: false
 };
 
-const platforms = [
-  { x: 0, y: groundY, w: world.width, h: 400 },
-  { x: 500, y: groundY - 110, w: 180, h: 20 },
-  { x: 860, y: groundY - 180, w: 220, h: 20 },
-  { x: 1300, y: groundY - 140, w: 200, h: 20 },
-  { x: 1850, y: groundY - 200, w: 240, h: 20 },
-  { x: 2300, y: groundY - 130, w: 200, h: 20 },
-  { x: 2700, y: groundY - 180, w: 220, h: 20 },
-  { x: 3300, y: groundY - 160, w: 240, h: 20 },
-  { x: 3800, y: groundY - 220, w: 220, h: 20 },
-  { x: 4300, y: groundY - 140, w: 260, h: 20 }
-];
+const platforms = [];
 
 const hearts = [];
 const heartMessages = [
@@ -830,24 +855,24 @@ const heartMessages = [
 
 function spawnHearts() {
   const positions = [
-    { x: 520, y: groundY - 160 },
-    { x: 900, y: groundY - 240 },
-    { x: 1120, y: groundY - 90 },
-    { x: 1380, y: groundY - 200 },
-    { x: 1880, y: groundY - 260 },
-    { x: 2120, y: groundY - 90 },
-    { x: 2440, y: groundY - 190 },
-    { x: 2780, y: groundY - 240 },
-    { x: 3320, y: groundY - 210 },
-    { x: 3900, y: groundY - 280 },
-    { x: 4180, y: groundY - 90 },
-    { x: 4580, y: groundY - 200 }
+    { x: 520, yOffset: 160 },
+    { x: 900, yOffset: 240 },
+    { x: 1120, yOffset: 90 },
+    { x: 1380, yOffset: 200 },
+    { x: 1880, yOffset: 260 },
+    { x: 2120, yOffset: 90 },
+    { x: 2440, yOffset: 190 },
+    { x: 2780, yOffset: 240 },
+    { x: 3320, yOffset: 210 },
+    { x: 3900, yOffset: 280 },
+    { x: 4180, yOffset: 90 },
+    { x: 4580, yOffset: 200 }
   ];
 
   for (let i = 0; i < 12; i++) {
     hearts.push({
       x: positions[i].x,
-      y: positions[i].y,
+      y: groundY - positions[i].yOffset,
       w: 32,
       h: 32,
       collected: false,
@@ -856,11 +881,12 @@ function spawnHearts() {
     });
   }
 }
-spawnHearts();
 
 const door = { x: 4950, y: groundY - 110, w: 70, h: 110, unlocked: false };
 
-let cameraX = 0;
+// Recalculate layout at start + whenever resized
+recalcWorldLayout();
+window.addEventListener("resize", recalcWorldLayout);
 
 /* ============================================================
    UI POPUP
