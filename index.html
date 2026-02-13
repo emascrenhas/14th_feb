@@ -558,10 +558,14 @@
   <div id="celebration">
     <h1>She Said YES! 💞</h1>
     <p>
-      Congratulations, legend.<br><br>
-      This is officially the cutest Valentine project ever made.
+      You just unlocked the happiest ending ever 💖<br><br>
+      Happy Valentine’s Day my love.<br>
+      This was made only for you.
     </p>
   </div>
+
+  <!-- NETFLIX MUSIC (UPGRADE #5) -->
+  <audio id="netflixMusic" src="assets/netflix.mp3" loop></audio>
 
 <script>
 /* ============================================================
@@ -587,6 +591,20 @@ let soundEnabled = true;
 let audioStarted = false;
 
 const muteBtn = document.getElementById("muteBtn");
+
+/* UPGRADE #5: Netflix music */
+const netflixMusic = document.getElementById("netflixMusic");
+
+function playNetflixMusic() {
+  if (!soundEnabled) return;
+  netflixMusic.volume = 0.6;
+  netflixMusic.play().catch(() => {});
+}
+
+function stopNetflixMusic() {
+  netflixMusic.pause();
+  netflixMusic.currentTime = 0;
+}
 
 function initAudio() {
   if (audioStarted) return;
@@ -627,6 +645,10 @@ muteBtn.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   muteBtn.innerText = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
   if (gainNode) gainNode.gain.value = soundEnabled ? 0.06 : 0.0;
+
+  if (!soundEnabled) {
+    netflixMusic.pause();
+  }
 });
 
 /* ============================================================
@@ -770,6 +792,9 @@ function spawnHearts() {
 
 const door = { x: 4950, y: groundY - 110, w: 70, h: 110, unlocked: false };
 
+/* UPGRADE #9: Door glow */
+let doorGlow = 0;
+
 recalcWorldLayout();
 window.addEventListener("resize", recalcWorldLayout);
 
@@ -858,9 +883,11 @@ function update() {
       heartCountText.innerText = `${heartsCollected} / 12`;
       showMessage(h.msg);
 
-      if (heartsCollected >= 12) {
+      /* UPGRADE #9: Unlock door message */
+      if (heartsCollected >= 12 && !door.unlocked) {
         door.unlocked = true;
         playSound("unlock");
+        showMessage("✨ FINAL DOOR UNLOCKED! Go to the door! ❤️");
       }
     }
   }
@@ -888,6 +915,14 @@ function drawBackground() {
   g.addColorStop(1, "#02030a");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  /* UPGRADE #8: Pixel stars */
+  for (let i = 0; i < 60; i++) {
+    const x = (i * 90 + (Date.now() / 40)) % canvas.width;
+    const y = (i * 37) % (canvas.height * 0.6);
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.fillRect(x, y, 2, 2);
+  }
 }
 
 function drawPlatforms() {
@@ -937,8 +972,11 @@ function drawDoor() {
   const dx = door.x - cameraX;
   const dy = door.y;
 
-  ctx.fillStyle = door.unlocked ? "rgba(255,0,80,0.35)" : "rgba(255,255,255,0.08)";
-  ctx.fillRect(dx - 6, dy - 6, door.w + 12, door.h + 12);
+  if (door.unlocked) {
+    doorGlow = (Math.sin(Date.now() / 180) + 1) * 0.5;
+    ctx.fillStyle = `rgba(255,0,80,${0.2 + doorGlow * 0.35})`;
+    ctx.fillRect(dx - 16, dy - 16, door.w + 32, door.h + 32);
+  }
 
   ctx.fillStyle = door.unlocked ? "#e50914" : "#333";
   ctx.fillRect(dx, dy, door.w, door.h);
@@ -969,12 +1007,20 @@ function triggerFinale() {
   document.getElementById("touchControls").style.display = "none";
   popup.style.display = "none";
 
+  /* UPGRADE #5: stop game oscillator */
+  if (bgOscillator) {
+    try { bgOscillator.stop(); } catch(e) {}
+  }
+
   fadeScreen.style.opacity = "1";
 
   setTimeout(() => {
     document.getElementById("gameContainer").style.display = "none";
     fadeScreen.style.opacity = "0";
     netflixScreen.style.display = "flex";
+
+    /* UPGRADE #5: play netflix music */
+    playNetflixMusic();
   }, 2000);
 }
 
@@ -1124,17 +1170,18 @@ function startCelebration() {
   finalQuestion.style.display = "none";
   celebration.style.display = "flex";
 
-  for (let i = 0; i < 55; i++) {
+  /* UPGRADE #11: Confetti + hearts */
+  for (let i = 0; i < 70; i++) {
     setTimeout(() => {
-      const heart = document.createElement("div");
-      heart.className = "floatingHeart";
-      heart.innerText = "💖";
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.top = (80 + Math.random() * 20) + "vh";
-      heart.style.fontSize = (18 + Math.random() * 22) + "px";
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 4000);
-    }, i * 60);
+      const item = document.createElement("div");
+      item.className = "floatingHeart";
+      item.innerText = ["💖","✨","💘","🎉","🌸","💝"][Math.floor(Math.random()*6)];
+      item.style.left = Math.random() * 100 + "vw";
+      item.style.top = (80 + Math.random() * 20) + "vh";
+      item.style.fontSize = (16 + Math.random() * 26) + "px";
+      document.body.appendChild(item);
+      setTimeout(() => item.remove(), 4000);
+    }, i * 50);
   }
 }
 
