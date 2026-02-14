@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Our Love Story - Finale</title>
+  <title>🌷💗🎶</title>
 
   <style>
     * {
@@ -276,7 +276,7 @@
     }
 
     .episodeCard.watched::after {
-      content: "✓ Watched";
+      content: "🦋🌹";
       position: absolute;
       top: 10px;
       right: 10px;
@@ -506,28 +506,28 @@
   </div>
 
   <!-- FADE SCREEN -->
-  <div id="fadeScreen">Loading Finale...</div>
+  <div id="fadeScreen">Loading...</div>
 
   <!-- NETFLIX SCREEN -->
   <div id="netflixScreen">
     <div class="netflixHeader">
-      <div class="netflixTitle">Our Love Story</div>
-      <div class="netflixSub">Season 1 Finale</div>
+      <div class="netflixTitle">You & Me 💖♾️</div>
+      <div class="netflixSub">🫂💕🎀🌸</div>
     </div>
 
-    <div style="font-size:1.15rem; opacity:0.9; margin-bottom: 8px;">Episodes</div>
+    <div style="font-size:1.15rem; opacity:0.9; margin-bottom: 8px;">Tabs</div>
     <div class="episodeRow" id="episodeRow"></div>
 
     <div class="netflixButtons">
-      <button class="nfBtn primaryBtn" id="continueBtn" disabled>Continue Watching</button>
+      <button class="nfBtn primaryBtn" id="continueBtn" disabled>Continue Watching🦭</button>
     </div>
 
     <div class="continueText" id="continueText">
-      Watch all episodes to unlock Continue Watching ❤️
+      Watch all tabs to unlock Continue Watching ❤️
     </div>
 
     <div style="margin-top:18px; opacity:0.55; font-size:0.95rem;">
-      Tap an episode to relive the memories.
+      Tap the tab to see🫣.
     </div>
   </div>
 
@@ -546,21 +546,22 @@
   <!-- FINAL QUESTION -->
   <div id="finalQuestion">
     <h1>Will You Be My Valentine? 💘</h1>
-    <p>Not just for today.<br>But for every season, every episode, every moment.</p>
+    <p>Not just for today.<br>But for every season, every day, every moment🥹</p>
 
     <div class="yesBtns">
       <button class="nfBtn primaryBtn" id="yesBtn1">YES 💖</button>
-      <button class="nfBtn" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.92);" id="yesBtn2">OF COURSE YES 😭</button>
+      <button class="nfBtn" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.92);" id="yesBtn2">OF COURSE YES 🥀</button>
     </div>
   </div>
 
   <!-- CELEBRATION -->
   <div id="celebration">
-    <h1>She Said YES! 💞</h1>
+    <h1>Yayyyyy🕺 You Said YES! 💞</h1>
     <p>
-      You just unlocked the happiest ending ever 💖<br><br>
-      Happy Valentine’s Day my love.<br>
-      This was made only for you.
+      You just made me the happiest person ever 💖<br><br>
+      Happy Valentine’s Day my love❤️.<br>
+      I Love You A Lot🫂🌹💕<br><br>
+      This was made only for you🦋.
     </p>
   </div>
 
@@ -747,18 +748,18 @@ const platforms = [];
 const hearts = [];
 
 const heartMessages = [
-  "Your smile is literally my favorite place to live.",
-  "If love was a game, you’d be my final reward every time.",
-  "You make my world softer, brighter, and better.",
-  "I don’t need perfect days. I just need you in them.",
-  "You are my peace, my chaos, my happiness — all in one.",
-  "Every little moment with you feels like magic.",
-  "Even in a crowd, you’re the only one I notice.",
-  "I love you in ways words can’t fully explain.",
-  "You feel like home… but also like adventure.",
-  "You’re the best part of my everyday life.",
-  "I’d choose you again and again, in every universe.",
-  "This isn’t just Valentine’s… this is us. Forever."
+  "You are my favorite💗.",
+  "Every day with you feels like a memory i want to replay forever🫶.",
+  "You make my world happier, brighter, and better🌺.",
+  "I don’t need perfect days. I just need you in them🫂.",
+  "You are my peace, my happiness — all in one💓.",
+  "Every little moment with you feels like magic✨️.",
+  "Even in a crowd, you’re the only one I notice👩‍❤️‍👨.",
+  "I love you in ways words can’t fully explain💞.",
+  "You feel like home🌹.",
+  "You’re the best part of my everyday life🥀.",
+  "I’d choose you again and again, in every universe🤞.",
+  "Us=Forever🎀♾️."
 ];
 
 function spawnHearts() {
@@ -887,7 +888,7 @@ function update() {
       if (heartsCollected >= 12 && !door.unlocked) {
         door.unlocked = true;
         playSound("unlock");
-        showMessage("✨ FINAL DOOR UNLOCKED! Go to the door! ❤️");
+        showMessage("✨ DOOR UNLOCKED! Go to the door! ❤️");
       }
     }
   }
@@ -986,7 +987,7 @@ function drawDoor() {
 
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "14px Arial";
-  ctx.fillText(door.unlocked ? "FINAL" : "LOCKED", dx + 10, dy - 12);
+  ctx.fillText(door.unlocked ? "DOOR" : "LOCKED", dx + 10, dy - 12);
 }
 
 function draw() {
@@ -1031,50 +1032,50 @@ const episodeRow = document.getElementById("episodeRow");
 
 const episodes = [
   {
-    title: "Episode 1: How It Started",
-    desc: "The moment we began… and I didn’t even realize it was the start of something unforgettable.",
+    title: "🦋🎀💕",
+    desc: "The moment we began… and I didn’t even realize it was the start of something unforgettable🌷.",
     img: "assests/ep1.jpg",
     watched: false
   },
   {
-    title: "Episode 2: The First Laugh",
-    desc: "That laugh. That smile. That exact moment where I thought: wow… I want more of this forever.",
+    title: "🦋🎀💕",
+    desc: "Your laugh. Your smile. Makes me the happiest because.. You Happy = Me Happy💖.",
     img: "assests/ep2.jpg",
     watched: false
   },
   {
-    title: "Episode 3: My Favorite Habit",
-    desc: "Some people feel temporary. But you… you feel like the kind of person life was saving for me.",
+    title: "🦋🎀💕",
+    desc: "You are the prettiest cutest and most beautiful💗.",
     img: "assests/ep3.jpg",
     watched: false
   },
   {
-    title: "Episode 4: The Comfort You Gave Me",
-    desc: "You became my comfort, my peace, my safe place… without even trying.",
+    title: "🦋🎀💕",
+    desc: "You are my Forever♾️♥️.",
     img: "assests/ep4.jpg",
     watched: false
   },
   {
-    title: "Episode 5: The Day I Realized",
-    desc: "You’re the cutest chaos, and the calmest home. Somehow both. Somehow perfect.",
+    title: "🦋🎀💕",
+    desc: "Yes i am always here for you🪷.",
     img: "assests/ep5.jpg",
     watched: false
   },
   {
-    title: "Episode 6: My Safe Place",
-    desc: "There was a moment where everything just clicked… and I knew I didn’t want anyone else.",
+    title: "🦋🎀💕",
+    desc: "I don’t want anyone else.. I just want you forever🫶",
     img: "assests/ep6.jpg",
     watched: false
   },
   {
-    title: "Episode 7: The Best Part of My Days",
-    desc: "Not a choice I made once… but a choice I’d make every single day. Again. Again. Again.",
+    title: "🦋🎀💕",
+    desc: "Not a choice I made once… but a choice I’d make every single day. Again. Again. Again💓.",
     img: "assests/ep7.jpg",
     watched: false
   },
   {
-    title: "Episode 8: Season Finale",
-    desc: "The finale isn’t the ending… it’s the beginning of what comes next.",
+    title: "🦋🎀💕",
+    desc: "You are my Charm and i want to hold your hand for the rest of my life🎀♥️.",
     img: "assests/ep8.jpg",
     watched: false
   }
@@ -1116,11 +1117,11 @@ function updateContinueButton() {
   if (watchedCount === episodes.length) {
     continueBtn.disabled = false;
     continueBtn.classList.add("unlocked");
-    continueText.innerText = "Finale unlocked ❤️ Tap Continue Watching";
+    continueText.innerText = "Unlocked ❤️ Tap Continue Watching";
   } else {
     continueBtn.disabled = true;
     continueBtn.classList.remove("unlocked");
-    continueText.innerText = `Episodes watched: ${watchedCount}/${episodes.length} — watch all to unlock ❤️`;
+    continueText.innerText = `Tabs seen: ${watchedCount}/${episodes.length} — watch all to unlock ❤️`;
   }
 }
 
